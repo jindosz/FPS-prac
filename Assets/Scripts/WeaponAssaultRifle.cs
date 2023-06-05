@@ -4,9 +4,15 @@ using UnityEngine;
 
 public class WeaponAssaultRifle : MonoBehaviour
 {
+    [Header("Fire Effects")]
+    [SerializeField]
+    private GameObject      muzzleFlashEffect;
+
     [Header("Audio Clips")]
     [SerializeField]
     private AudioClip       audioClipTakeOutWeapon;
+    [SerializeField]
+    private AudioClip       audioClipFire;
 
     [Header("Weapon Setting")]
     [SerializeField]
@@ -26,6 +32,8 @@ public class WeaponAssaultRifle : MonoBehaviour
     private void OnEnable()
     {
         PlaySound(audioClipTakeOutWeapon);
+
+        muzzleFlashEffect.SetActive(false);
     }
 
     public void StartWeaponAction(int type=0)
@@ -75,6 +83,19 @@ public class WeaponAssaultRifle : MonoBehaviour
         lastAttackTime = Time.time;
 
         animator.Play("Fire", -1, 0);  //자동 공격 애니메이션 이상함 <-- 고치기 + 사운드부터
+
+        StartCoroutine("OnMuzzleFlashEffect");
+
+        PlaySound(audioClipFire);
+    }
+
+    private IEnumerator OnMuzzleFlashEffect()
+    {
+        muzzleFlashEffect.SetActive(true);
+
+        yield return new WaitForSeconds(weaponSetting.attackRate * 0.3f);
+
+        muzzleFlashEffect.SetActive(false);
     }
 
     private void PlaySound(AudioClip clip)

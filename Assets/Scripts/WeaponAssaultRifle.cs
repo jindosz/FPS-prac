@@ -6,27 +6,34 @@ public class WeaponAssaultRifle : MonoBehaviour
 {
     [Header("Fire Effects")]
     [SerializeField]
-    private GameObject      muzzleFlashEffect;
+    private GameObject muzzleFlashEffect;
+
+    [Header("Spawn Points")]
+    [SerializeField]
+    private Transform casingSpawnPoint;
 
     [Header("Audio Clips")]
     [SerializeField]
-    private AudioClip       audioClipTakeOutWeapon;
+    private AudioClip audioClipTakeOutWeapon;
+
     [SerializeField]
-    private AudioClip       audioClipFire;
+    private AudioClip audioClipFire;
 
     [Header("Weapon Setting")]
     [SerializeField]
-    private WeaponSetting   weaponSetting;
+    private WeaponSetting weaponSetting;
 
-    private float           lastAttackTime = 0;
+    private float lastAttackTime = 0;
 
-    private AudioSource                 audioSource;
-    private PlayerAnimatorController    animator;
+    private AudioSource audioSource;
+    private PlayerAnimatorController animator;
+    private CasingMemoryPool casingMemoryPool;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        animator    = GetComponentInParent<PlayerAnimatorController>();
+        animator = GetComponentInParent<PlayerAnimatorController>();
+        casingMemoryPool = GetComponent<CasingMemoryPool>();
     }
 
     private void OnEnable()
@@ -36,15 +43,14 @@ public class WeaponAssaultRifle : MonoBehaviour
         muzzleFlashEffect.SetActive(false);
     }
 
-    public void StartWeaponAction(int type=0)
+    public void StartWeaponAction(int type = 0)
     {
-        if ( type == 0 )
+        if (type == 0)
         {
-            if ( weaponSetting.isAutomaticAttack == true )
+            if (weaponSetting.isAutomaticAttack == true)
             {
                 StartCoroutine("OnAttackLoop");
             }
-
             else
             {
                 OnAttack();
@@ -52,9 +58,9 @@ public class WeaponAssaultRifle : MonoBehaviour
         }
     }
 
-    public void StopWeaponAction(int type=0)
+    public void StopWeaponAction(int type = 0)
     {
-        if ( type == 0 )
+        if (type == 0)
         {
             StopCoroutine("OnAttackLoop");
         }
@@ -62,7 +68,7 @@ public class WeaponAssaultRifle : MonoBehaviour
 
     private IEnumerator OnAttackLoop()
     {
-        while ( true )
+        while (true)
         {
             OnAttack();
 
@@ -72,9 +78,9 @@ public class WeaponAssaultRifle : MonoBehaviour
 
     public void OnAttack()
     {
-        if ( Time.time - lastAttackTime < weaponSetting.attackRate )
+        if (Time.time - lastAttackTime < weaponSetting.attackRate)
         {
-            if ( animator.MoveSpeed > 0.5f )
+            if (animator.MoveSpeed > 0.5f)
             {
                 return;
             }
@@ -88,6 +94,8 @@ public class WeaponAssaultRifle : MonoBehaviour
         StartCoroutine("OnMuzzleFlashEffect");
 
         PlaySound(audioClipFire);
+
+        casingMemoryPool.SpawnCasing(casingSpawnPoint.position, transform.right);
     }
 
     private IEnumerator OnMuzzleFlashEffect()

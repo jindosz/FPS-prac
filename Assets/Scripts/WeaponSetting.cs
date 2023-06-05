@@ -1,7 +1,7 @@
- [System.Serializable]
-public struct  WeaponSetting
+[System.Serializable]
+public struct WeaponSetting
 {
-    public float        attackRate;
-    public float        attackDistance;
-    public bool         isAutomaticAttack;
+    public float attackRate;
+    public float attackDistance;
+    public bool isAutomaticAttack;
 }

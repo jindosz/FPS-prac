@@ -72,17 +72,18 @@ public class WeaponAssaultRifle : MonoBehaviour
 
     public void OnAttack()
     {
-        if ( Time.time - lastAttackTime > weaponSetting.attackRate )
+        if ( Time.time - lastAttackTime < weaponSetting.attackRate )
         {
             if ( animator.MoveSpeed > 0.5f )
             {
                 return;
             }
+            return;
         }
 
         lastAttackTime = Time.time;
 
-        animator.Play("Fire", -1, 0);  //자동 공격 애니메이션 이상함 <-- 고치기 + 사운드부터
+        animator.Play("Fire", -1, 0);
 
         StartCoroutine("OnMuzzleFlashEffect");
 

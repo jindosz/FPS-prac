@@ -37,7 +37,7 @@ public class ImpactMemoryPool : MonoBehaviour
 
     public void OnSpawnImpact(ImpactType type, Vector3 position, Quaternion rotation)
     {
-        GameObject item = memoryPool[(int)type].ActivePoolItem(); //영상에서는 ActivatePoolItem인데 ActivePoolItem이 맞음
+        GameObject item = memoryPool[(int)type].ActivePoolItem(); // TODO,영상에서는 ActivatePoolItem인데 ActivePoolItem이 맞음
         item.transform.position = position;
         item.transform.rotation = rotation;
         item.GetComponent<Impact>().Setup(memoryPool[(int)type]);

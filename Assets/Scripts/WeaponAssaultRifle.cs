@@ -169,7 +169,7 @@ public class WeaponAssaultRifle : MonoBehaviour
         onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
 
         string animation = animator.AimModeIs == true ? "AimFire" : "Fire";
-        animator.Play("animation", -1, 0);
+        animator.Play(animation, 0, 0);
 
         if (animator.AimModeIs == false)
             StartCoroutine("OnMuzzleFlashEffect");

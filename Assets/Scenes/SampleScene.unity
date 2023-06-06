@@ -1747,6 +1747,7 @@ MonoBehaviour:
     attackRate: 0.1
     attackDistance: 30
     isAutomaticAttack: 1
+  imageAim: {fileID: 747537226}
 --- !u!82 &1552919762
 AudioSource:
   m_ObjectHideFlags: 0

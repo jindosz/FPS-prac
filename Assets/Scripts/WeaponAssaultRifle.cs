@@ -5,10 +5,16 @@ using UnityEngine;
 [System.Serializable]
 public class AmmoEvent : UnityEngine.Events.UnityEvent<int, int> { }
 
+[System.Serializable]
+public class MagazineEvent : UnityEngine.Events.UnityEvent<int> { }
+
 public class WeaponAssaultRifle : MonoBehaviour
 {
     [HideInInspector]
     public AmmoEvent onAmmoEvent = new AmmoEvent();
+
+    [HideInInspector]
+    public MagazineEvent onMagazineEvent = new MagazineEvent();
 
     [Header("Fire Effects")]
     [SerializeField]
@@ -17,6 +23,9 @@ public class WeaponAssaultRifle : MonoBehaviour
     [Header("Spawn Points")]
     [SerializeField]
     private Transform casingSpawnPoint;
+
+    [SerializeField]
+    private Transform bulletSpawnPoint;
 
     [Header("Audio Clips")]
     [SerializeField]
@@ -38,14 +47,22 @@ public class WeaponAssaultRifle : MonoBehaviour
     private AudioSource audioSource;
     private PlayerAnimatorController animator;
     private CasingMemoryPool casingMemoryPool;
+    private ImpactMemoryPool impactMemoryPool;
+    private Camera MainCamera;
 
     public WeaponName WeaponName => weaponSetting.weaponName;
+    public int CurrentMagazine => weaponSetting.currentMagazine;
+    public int MaxMagazine => weaponSetting.maxMagazine;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
         animator = GetComponentInParent<PlayerAnimatorController>();
         casingMemoryPool = GetComponent<CasingMemoryPool>();
+        impactMemoryPool = GetComponent<ImpactMemoryPool>();
+        MainCamera = Camera.main;
+
+        weaponSetting.currentMagazine = weaponSetting.maxMagazine;
 
         weaponSetting.currentAmmo = weaponSetting.maxAmmo;
     }
@@ -55,6 +72,8 @@ public class WeaponAssaultRifle : MonoBehaviour
         PlaySound(audioClipTakeOutWeapon);
 
         muzzleFlashEffect.SetActive(false);
+
+        onMagazineEvent.Invoke(weaponSetting.currentMagazine);
 
         onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
     }
@@ -87,7 +106,7 @@ public class WeaponAssaultRifle : MonoBehaviour
 
     public void StartReload()
     {
-        if (isReload == true)
+        if (isReload == true || weaponSetting.currentMagazine <= 0)
             return;
 
         StopWeaponAction();
@@ -133,6 +152,8 @@ public class WeaponAssaultRifle : MonoBehaviour
         PlaySound(audioClipFire);
 
         casingMemoryPool.SpawnCasing(casingSpawnPoint.position, transform.right);
+
+        TwoStepRaycast();
     }
 
     private IEnumerator OnMuzzleFlashEffect()
@@ -157,6 +178,9 @@ public class WeaponAssaultRifle : MonoBehaviour
             {
                 isReload = false;
 
+                weaponSetting.currentMagazine--;
+                onMagazineEvent.Invoke(weaponSetting.currentMagazine);
+
                 weaponSetting.currentAmmo = weaponSetting.maxAmmo;
                 onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
 
@@ -165,6 +189,43 @@ public class WeaponAssaultRifle : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    private void TwoStepRaycast()
+    {
+        Ray ray;
+        RaycastHit hit;
+        Vector3 targetPoint = Vector3.zero;
+
+        ray = MainCamera.ViewportPointToRay(Vector2.one * 0.5f);
+
+        if (Physics.Raycast(ray, out hit, weaponSetting.attackDistance))
+        {
+            targetPoint = hit.point;
+        }
+        else
+        {
+            targetPoint = ray.origin + ray.direction * weaponSetting.attackDistance;
+        }
+        Debug.DrawRay(ray.origin, ray.direction * weaponSetting.attackDistance, Color.red);
+
+        Vector3 attackDistance = (targetPoint - bulletSpawnPoint.position).normalized;
+        if (
+            Physics.Raycast(
+                bulletSpawnPoint.position,
+                attackDistance,
+                out hit,
+                weaponSetting.attackDistance
+            )
+        )
+        {
+            impactMemoryPool.SpawnImpact(hit);
+        }
+        Debug.DrawRay(
+            bulletSpawnPoint.position,
+            attackDistance * weaponSetting.attackDistance,
+            Color.blue
+        );
     }
 
     private void PlaySound(AudioClip clip)

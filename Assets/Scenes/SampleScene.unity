@@ -419,6 +419,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cc320cd602812640a7cfc353980ff2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weapon: {fileID: 1552919761}
+  textWeaponName: {fileID: 2112072873}
+  imageWeaponIcon: {fileID: 455401072}
+  spriteWeaponTcons:
+  - {fileID: 21300044, guid: 5acb27b603af6d44ea6113c4b7b15385, type: 3}
+  textAmmo: {fileID: 1535033858}
 --- !u!4 &331778746
 Transform:
   m_ObjectHideFlags: 0
@@ -1608,6 +1614,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee55aa948940c1643a5b3d88e880305b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onAmmoEvent:
+    m_PersistentCalls:
+      m_Calls: []
   muzzleFlashEffect: {fileID: 2143092056}
   casingSpawnPoint: {fileID: 1026673268}
   audioClipTakeOutWeapon: {fileID: 8300000, guid: 2ae41e984ff1f3e4a840a1a46b6a8816, type: 3}

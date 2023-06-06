@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class AmmoEvent : UnityEngine.Events.UnityEvent<int, int> { }
@@ -41,8 +42,16 @@ public class WeaponAssaultRifle : MonoBehaviour
     [SerializeField]
     private WeaponSetting weaponSetting;
 
+    [Header("Aim UI")]
+    [SerializeField]
+    private Image imageAim;
+
     private float lastAttackTime = 0;
     private bool isReload = false;
+    private bool isAttack = false;
+    private bool isModeChange = false;
+    private float defaultModeFOV = 60;
+    private float aimModeFOV = 30;
 
     private AudioSource audioSource;
     private PlayerAnimatorController animator;
@@ -76,6 +85,8 @@ public class WeaponAssaultRifle : MonoBehaviour
         onMagazineEvent.Invoke(weaponSetting.currentMagazine);
 
         onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
+
+        ResetVariables();
     }
 
     public void StartWeaponAction(int type = 0)
@@ -83,10 +94,14 @@ public class WeaponAssaultRifle : MonoBehaviour
         if (isReload == true)
             return;
 
+        if (isModeChange == true)
+            return;
+
         if (type == 0)
         {
             if (weaponSetting.isAutomaticAttack == true)
             {
+                isAttack = true;
                 StartCoroutine("OnAttackLoop");
             }
             else
@@ -94,12 +109,20 @@ public class WeaponAssaultRifle : MonoBehaviour
                 OnAttack();
             }
         }
+        else
+        {
+            if (isAttack == true)
+                return;
+
+            StartCoroutine("OnModeChange");
+        }
     }
 
     public void StopWeaponAction(int type = 0)
     {
         if (type == 0)
         {
+            isAttack = false;
             StopCoroutine("OnAttackLoop");
         }
     }
@@ -145,7 +168,11 @@ public class WeaponAssaultRifle : MonoBehaviour
         weaponSetting.currentAmmo--;
         onAmmoEvent.Invoke(weaponSetting.currentAmmo, weaponSetting.maxAmmo);
 
-        animator.Play("Fire", -1, 0);
+        string animation = animator.AimModeIs == true ? "AimFire" : "Fire";
+        animator.Play("animation", -1, 0);
+
+        if (animator.AimModeIs == false)
+            StartCoroutine("OnMuzzleFlashEffect");
 
         StartCoroutine("OnMuzzleFlashEffect");
 
@@ -154,6 +181,40 @@ public class WeaponAssaultRifle : MonoBehaviour
         casingMemoryPool.SpawnCasing(casingSpawnPoint.position, transform.right);
 
         TwoStepRaycast();
+    }
+
+    private IEnumerator OnModeChange()
+    {
+        float current = 0;
+        float percent = 0;
+        float time = 0.35f;
+
+        animator.AimModeIs = !animator.AimModeIs;
+        imageAim.enabled = !imageAim.enabled;
+
+        float start = MainCamera.fieldOfView;
+        float end = animator.AimModeIs == true ? aimModeFOV : defaultModeFOV;
+
+        isModeChange = true;
+
+        while (percent < 1)
+        {
+            current += Time.deltaTime;
+            percent = current / time;
+
+            MainCamera.fieldOfView = Mathf.Lerp(start, end, percent);
+
+            yield return null;
+        }
+
+        isModeChange = false;
+    }
+
+    private void ResetVariables()
+    {
+        isReload = false;
+        isAttack = false;
+        isModeChange = false;
     }
 
     private IEnumerator OnMuzzleFlashEffect()

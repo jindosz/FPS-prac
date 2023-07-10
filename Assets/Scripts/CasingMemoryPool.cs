@@ -15,7 +15,7 @@ public class CasingMemoryPool : MonoBehaviour
 
     public void SpawnCasing(Vector3 position, Vector3 direction)
     {
-        GameObject item = memoryPool.ActivePoolItem();
+        GameObject item = memoryPool.ActivatePoolItem();
         item.transform.position = position;
         item.transform.rotation = Random.rotation;
         item.GetComponent<Casing>().Setup(memoryPool, direction);

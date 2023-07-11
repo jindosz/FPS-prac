@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO 적 캐릭터, 기둥 소환 안되는 버그있음 코드상의 버그는 모르겠다 ㅅㅂ 도와줘 선진에몽
+//TODO 적 캐릭터, 기둥 소환 안되는 버그있음 코드상의 버그는 모르겠다
 public class EnemyMemoryPool : MonoBehaviour
 {
     [SerializeField]
@@ -31,7 +31,7 @@ public class EnemyMemoryPool : MonoBehaviour
         StartCoroutine("SpawnTile");
     }
 
-    private IEnumerable SpawnTile()
+    private IEnumerator SpawnTile()
     {
         int currentNumber = 0;
         int maximumNumber = 50;
@@ -62,7 +62,7 @@ public class EnemyMemoryPool : MonoBehaviour
         }
     }
 
-    private IEnumerable SpawnEnemy(GameObject point)
+    private IEnumerator SpawnEnemy(GameObject point)
     {
         yield return new WaitForSeconds(enemySpawnLatency);
 

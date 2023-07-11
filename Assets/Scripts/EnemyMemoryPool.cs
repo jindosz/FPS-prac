@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO 적 캐릭터, 기둥 소환 안되는 버그있음 코드상의 버그는 모르겠다
 public class EnemyMemoryPool : MonoBehaviour
 {
+    [SerializeField]
+    private Transform target;
+
     [SerializeField]
     private GameObject enemySpawnPointPrefab;
 
@@ -68,6 +70,8 @@ public class EnemyMemoryPool : MonoBehaviour
 
         GameObject item = enemyMemoryPool.ActivatePoolItem();
         item.transform.position = point.transform.position;
+
+        item.GetComponent<EnemyFSM>().Setup(target);
 
         spawnPointMemoryPool.DeactivatePoolItem(point);
     }
